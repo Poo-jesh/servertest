@@ -9,6 +9,8 @@ import requests
 import os
 from urllib.parse import unquote, parse_qs
 
+class ThreadHTTPServer(ThreadingMixIn, http.server.HTTPServer):
+
 memory = {}
 
 form = '''<!DOCTYPE html>
