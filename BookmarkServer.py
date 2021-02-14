@@ -10,12 +10,11 @@ import os
 from urllib.parse import unquote, parse_qs
 
 class ThreadHTTPServer(ThreadingMixIn, http.server.HTTPServer):
+    memory = {}
 
-memory = {}
-
-form = '''<!DOCTYPE html>
-<title>Bookmark Server</title>
-<form method="POST">
+    form = '''<!DOCTYPE html>
+    <title>Bookmark Server</title>
+    <form method="POST">
     <label>Long URI:
         <input name="longuri">
     </label>
@@ -25,17 +24,17 @@ form = '''<!DOCTYPE html>
     </label>
     <br>
     <button type="submit">Save it!</button>
-</form>
-<p>URIs I know about:
-<pre>
-{}
-</pre>
-'''
+    </form>
+    <p>URIs I know about:
+    <pre>
+    {}
+    </pre>
+    '''
 
 
-def CheckURI(uri, timeout=5):
+    def CheckURI(uri, timeout=5):
     '''Check whether this URI is reachable, i.e. does it return a 200 OK?
-    
+
     This function returns True if a GET request to uri returns a 200 OK, and
     False if that GET request returns any other response, or doesn't return
     (i.e. times out).
@@ -49,7 +48,7 @@ def CheckURI(uri, timeout=5):
         return False
 
 
-class Shortener(http.server.BaseHTTPRequestHandler):
+    class Shortener(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
         # A GET request will either be for / (the root path) or for /some-name.
         # Strip off the / and we have either empty string or a name.
@@ -74,7 +73,7 @@ class Shortener(http.server.BaseHTTPRequestHandler):
             self.end_headers()
             # List the known associations in the form.
             known = "\n".join("{} : {}".format(key, memory[key])
-                              for key in sorted(memory.keys()))
+                                for key in sorted(memory.keys()))
             self.wfile.write(form.format(known).encode())
 
     def do_POST(self):
@@ -100,6 +99,8 @@ class Shortener(http.server.BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(
                 "Couldn't fetch URI '{}'. Sorry!".format(longuri).encode())
+
+
 
 if __name__ == '__main__':
     server_address = ('', int(os.environ.get('PORT', '8000')))
